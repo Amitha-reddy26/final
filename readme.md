@@ -1,15 +1,30 @@
-# HW13 — FastAPI Authentication + Calculator (Expanded Testing & Docker Deployement)
+# Final Project — FastAPI Calculator + New Feature Integration (Power Operation)
 
-This application provides:
-- A FastAPI backend with user registration, login, JWT authentication, and protected calculator operations.
-- A simple HTML front-end for interacting with authentication and calculation features.
-- Full integration testing using pytest and coverage.
-- End-to-end testing using Playwright.
-- Docker containerization with a published Docker Hub image for easy deployment.
+##  This application extends the original FastAPI Calculator and Authentication system by introducing a new calculation feature: Power (a^b). The project now includes:
+- A FastAPI backend with user registration, login, JWT authentication, and full CRUD support for calculator operations.
+- An enhanced calculator that supports addition, subtraction, multiplication, division, and the newly implemented power operation (a^b).
+- A user-friendly HTML front-end updated to include the new feature.
+- A complete automated testing suite:
+- Unit tests for operation logic
+- Integration tests for API routes
+- End-to-end (E2E) tests using Playwright to validate real browser behavior
+- Docker containerization with a published Docker Hub image for seamless deployment.
 ---
 
 
 # Running the App
+
+### **Create venv**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### **Install Requirements**
+```bash
+pip install -r requirements.txt
+```
 
 
 ### **Start FastAPI locally**
@@ -28,6 +43,11 @@ http://127.0.0.1:8000/docs (Swagger API)
 ## Running the tests
 ``` bash
 pytest
+```
+
+```bash
+npx playwright install
+npx playwright test
 ```
 
 --- 
@@ -54,13 +74,8 @@ http://127.0.0.1:8000/login
 
 
 --- 
-# Running the Playwright Tests
-
-``` bash
-npx playwright test
-```
 
 
 ## Dockerhub link
 
-https://hub.docker.com/repository/docker/ab2609/hw14/general
+https://hub.docker.com/repository/docker/ab2609/final/general
