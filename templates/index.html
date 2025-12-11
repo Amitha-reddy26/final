@@ -63,7 +63,6 @@
         <a href="/calculations/page">Calculations</a>
     </nav>
 
-    <!-- 🔥 START BLOCK -->
     {% block content %}
     <div class="calculator">
         <h2>Calculator</h2>
@@ -75,11 +74,11 @@
         <button onclick="calculate('subtract')">Subtract</button>
         <button onclick="calculate('multiply')">Multiply</button>
         <button onclick="calculate('divide')">Divide</button>
+        <button onclick="calculate('power')">Power (a^b)</button>
 
         <div class="result" id="result"></div>
     </div>
     {% endblock %}
-    <!-- 🔥 END BLOCK -->
 
     <script>
         async function calculate(operation) {
@@ -88,10 +87,10 @@
             const resultElement = document.getElementById('result');
 
             try {
-                const response = await fetch('/' + operation, {
+                const response = await fetch('/calculations', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ a, b })
+                    body: JSON.stringify({ operation, a, b })
                 });
 
                 const data = await response.json();
@@ -99,7 +98,9 @@
                 if (response.ok) {
                     resultElement.innerText = 'Result: ' + data.result;
                 } else {
-                    resultElement.innerText = 'Error: ' + data.error;
+                    // FIXED: handles divide-by-zero and matches E2E expected exact string
+                    const errorMessage = data.detail || data.error || "Unknown error";
+                    resultElement.innerText = 'Error: ' + errorMessage;
                 }
 
             } catch (err) {

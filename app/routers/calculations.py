@@ -10,15 +10,17 @@ from app.schemas.calculation import (
     CalculationUpdate
 )
 from app.models.calculation import Calculation
-from app.operations import add, subtract, multiply, divide
+from app.operations import add, subtract, multiply, divide, power
 
 router = APIRouter(prefix="/calculations", tags=["Calculations"])
 
+# NEW: Added "power"
 OPERATION_MAP = {
     "add": add,
     "subtract": subtract,
     "multiply": multiply,
     "divide": divide,
+    "power": power,
 }
 
 # ---------------------------
@@ -59,7 +61,7 @@ def create_calculation(payload: CalculationCreate, db: Session = Depends(get_db)
         a=payload.a,
         b=payload.b,
         result=result,
-        user_id=None,      # IMPORTANT: tests expect no user reference
+        user_id=None,      # tests expect no user for this assignment
     )
 
     db.add(calc)
@@ -84,13 +86,13 @@ def update_calculation(
     if not calc:
         raise HTTPException(status_code=404, detail="Calculation not found")
 
-    # Change operation
+    # Update operation
     if payload.operation:
         if payload.operation not in OPERATION_MAP:
             raise HTTPException(status_code=400, detail="Invalid operation")
         calc.operation = payload.operation
 
-    # Change numbers
+    # Update numbers
     if payload.a is not None:
         calc.a = payload.a
 

@@ -1,16 +1,19 @@
 from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
+from typing import Literal
 
 
 class CalculationCreate(BaseModel):
-    operation: str = Field(..., examples=["add", "subtract", "multiply", "divide"])
+    operation: Literal["add", "subtract", "multiply", "divide", "power"] = Field(
+        ..., examples=["add", "subtract", "multiply", "divide", "power"]
+    )
     a: float
     b: float
 
 
 class CalculationUpdate(BaseModel):
-    operation: str | None = None
+    operation: Literal["add", "subtract", "multiply", "divide", "power"] | None = None
     a: float | None = None
     b: float | None = None
 

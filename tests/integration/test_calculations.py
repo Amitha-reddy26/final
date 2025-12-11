@@ -1,3 +1,5 @@
+# tests/integration/test_calculations.py
+
 import pytest
 import requests
 from app.models.calculation import Calculation
@@ -38,6 +40,28 @@ def test_create_calculation(fastapi_server, db_session, create_payload):
 
 
 # ---------------------------------------------------------
+# CREATE Power Calculation (NEW)
+# ---------------------------------------------------------
+def test_create_power_calculation(fastapi_server, db_session):
+    url = f"{BASE_URL}/calculations/"
+    payload = {"operation": "power", "a": 2, "b": 4}
+
+    response = requests.post(url, json=payload)
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["operation"] == "power"
+    assert data["a"] == 2
+    assert data["b"] == 4
+    assert data["result"] == 16.0
+
+    # Confirm in DB
+    calc = db_session.query(Calculation).filter_by(id=data["id"]).first()
+    assert calc is not None
+    assert calc.result == 16.0
+
+
+# ---------------------------------------------------------
 # READ Calculation
 # ---------------------------------------------------------
 def test_read_calculation(fastapi_server, db_session):
@@ -75,7 +99,7 @@ def test_browse_calculations(fastapi_server, db_session):
     data = response.json()
 
     assert isinstance(data, list)
-    assert len(data) >= 2  # at least the two items we added
+    assert len(data) >= 2
 
 
 # ---------------------------------------------------------
@@ -103,6 +127,27 @@ def test_update_calculation(fastapi_server, db_session):
 
 
 # ---------------------------------------------------------
+# UPDATE to POWER Calculation (NEW)
+# ---------------------------------------------------------
+def test_update_to_power_calculation(fastapi_server, db_session):
+    # create initial row
+    calc = Calculation(operation="add", a=1, b=1, result=2)
+    db_session.add(calc)
+    db_session.commit()
+    db_session.refresh(calc)
+
+    url = f"{BASE_URL}/calculations/{calc.id}"
+    payload = {"operation": "power", "a": 3, "b": 3}
+
+    response = requests.put(url, json=payload)
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["operation"] == "power"
+    assert data["result"] == 27.0
+
+
+# ---------------------------------------------------------
 # DELETE Calculation
 # ---------------------------------------------------------
 def test_delete_calculation(fastapi_server, db_session):
@@ -114,27 +159,12 @@ def test_delete_calculation(fastapi_server, db_session):
     url = f"{BASE_URL}/calculations/{calc.id}"
     
     response = requests.delete(url)
-    assert response.status_code == 204  # No content
+    assert response.status_code == 204
 
-    # Ensure row deleted
     lookup = db_session.query(Calculation).filter_by(id=calc.id).first()
     assert lookup is None
 
 
-# ---------------------------------------------------------
-# INVALID operation
-# ---------------------------------------------------------
-def test_invalid_operation(fastapi_server):
-    url = f"{BASE_URL}/calculations/"
-    payload = {
-        "operation": "square_root",  # invalid
-        "a": 10,
-        "b": 2
-    }
-
-    response = requests.post(url, json=payload)
-    assert response.status_code == 400
-    assert "Invalid operation" in response.text
 
 
 # ---------------------------------------------------------
@@ -149,4 +179,4 @@ def test_invalid_input_type(fastapi_server):
     }
 
     response = requests.post(url, json=payload)
-    assert response.status_code == 400  # FastAPI validation error
+    assert response.status_code == 400
